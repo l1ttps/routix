@@ -1,4 +1,4 @@
-package routix
+package exception
 
 import "net/http"
 

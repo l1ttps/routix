@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/l1ttps/routix/exception"
 )
 
 type Engine *gin.Engine
@@ -51,7 +52,7 @@ func PipeResponse(handler func(c *gin.Context) interface{}) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		response := handler(ctx)
 
-		if httpException, ok := response.(HttpExceptionResponse); ok {
+		if httpException, ok := response.(exception.HttpExceptionResponse); ok {
 			ctx.JSON(httpException.Status, gin.H{
 				"status":  httpException.Status,
 				"message": httpException.Message,
