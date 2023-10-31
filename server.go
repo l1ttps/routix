@@ -4,11 +4,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Controller func() *gin.Engine
+type ControllerType func() *gin.Engine
 type Middleware func() gin.HandlerFunc
 type ServerConfig struct {
 	Loader      []func()
-	Controllers []Controller
+	Controllers []ControllerType
 	Middlewares []gin.HandlerFunc
 	Port        string
 	DebugLogger bool
