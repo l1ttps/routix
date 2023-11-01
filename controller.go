@@ -17,8 +17,11 @@ type Engine *gin.Engine
 //
 // The function returns a *gin.Engine instance that has been configured with the specified routes.
 func Controller(basePath string, routes ...RouteBase) *gin.Engine {
+
 	var drive = Driver
-	c := drive.Group(basePath)
+
+	c := drive.Group(PathRoot + basePath)
+
 	methodMap := map[HTTPMethod]func(string, ...gin.HandlerFunc) gin.IRoutes{
 		"GET":    c.GET,
 		"POST":   c.POST,
@@ -28,7 +31,6 @@ func Controller(basePath string, routes ...RouteBase) *gin.Engine {
 	}
 
 	for _, route := range routes {
-		fmt.Println(route)
 		handlerFunc, exists := methodMap[route.method]
 		if !exists {
 			fmt.Printf("Invalid HTTP method: %s\n", route.method)
