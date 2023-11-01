@@ -5,7 +5,7 @@ import (
 )
 
 type ControllerType func() *gin.Engine
-type Middleware func() gin.HandlerFunc
+type MiddlewareType gin.HandlerFunc
 
 type ServerConfig struct {
 	Controllers []ControllerType
@@ -34,9 +34,7 @@ func CreateServer(config ServerConfig) *gin.Engine {
 	}
 
 	// Connect the controllers to the server
-	for _, controller := range config.Controllers {
-		controller()
-	}
+	connectControllers(config.Controllers)
 
 	// Return the created Gin server
 	return Driver
@@ -52,5 +50,15 @@ func CreateServer(config ServerConfig) *gin.Engine {
 func applyMiddlewares(r *gin.Engine, middlewares []gin.HandlerFunc) {
 	for _, middleware := range middlewares {
 		r.Use(middleware)
+	}
+}
+
+// connectControllers connects the given controllers and executes each controller.
+//
+// controllers: a slice of ControllerType that represents the controllers to be connected.
+// The function iterates over the slice and executes each controller
+func connectControllers(controllers []ControllerType) {
+	for _, controller := range controllers {
+		controller()
 	}
 }
