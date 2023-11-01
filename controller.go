@@ -121,10 +121,6 @@ func NewRouteBase(basePath string, handler func(c *gin.Context) any, method HTTP
 	}
 }
 
-func TestMethod(basePath string, handler func(c *gin.Context) any, middlewares ...gin.HandlerFunc) RouteBase {
-	return NewRouteBase(basePath, handler, GET, middlewares)
-}
-
 // Get returns a new RouteBase with the given base path, handler function, and
 // optional middlewares.
 //

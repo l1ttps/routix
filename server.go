@@ -17,7 +17,6 @@ type ServerConfig struct {
 // CreateServer creates a new Gin server with the given configuration.
 // It takes a ServerConfig parameter that specifies the server's configuration.
 // The function returns a *gin.Engine, which is the created Gin server.
-
 func CreateServer(config ServerConfig) *gin.Engine {
 	if !config.DebugLogger {
 		gin.SetMode(gin.ReleaseMode)
@@ -44,7 +43,6 @@ func CreateServer(config ServerConfig) *gin.Engine {
 //   - middlewares: a slice of gin.HandlerFunc objects.
 //
 // Return type: None.
-
 func applyMiddlewares(r *gin.Engine, middlewares []gin.HandlerFunc) {
 	for _, middleware := range middlewares {
 		r.Use(middleware)
