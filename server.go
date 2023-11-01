@@ -6,18 +6,19 @@ import (
 
 type ControllerType func() *gin.Engine
 type Middleware func() gin.HandlerFunc
+
 type ServerConfig struct {
-	Loader      []func()
 	Controllers []ControllerType
 	Middlewares []gin.HandlerFunc
-	Port        string
 	DebugLogger bool
+	PathRoot    string
 }
 
 // CreateServer creates a new Gin server with the given configuration.
 // It takes a ServerConfig parameter that specifies the server's configuration.
 // The function returns a *gin.Engine, which is the created Gin server.
 func CreateServer(config ServerConfig) *gin.Engine {
+	// Check if debug logger is enabled
 	if !config.DebugLogger {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -26,6 +27,11 @@ func CreateServer(config ServerConfig) *gin.Engine {
 
 	// Auto apply global middlewares
 	applyMiddlewares(Driver, config.Middlewares)
+
+	// Apply base path
+	if config.PathRoot != "" && config.PathRoot != "/" {
+		PathRoot = config.PathRoot
+	}
 
 	// Connect the controllers to the server
 	for _, controller := range config.Controllers {
