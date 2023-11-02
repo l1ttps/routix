@@ -3,9 +3,11 @@ package routix
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/l1ttps/routix/exception"
+	"github.com/l1ttps/routix/logger"
 )
 
 type Engine *gin.Engine
@@ -20,7 +22,9 @@ func Controller(basePath string, routes ...RouteBase) *gin.Engine {
 
 	var drive = Driver
 
-	c := drive.Group(PathRoot + basePath)
+	controllerAbsolutePath := PathRoot + basePath
+
+	c := drive.Group(controllerAbsolutePath)
 
 	methodMap := map[HTTPMethod]func(string, ...gin.HandlerFunc) gin.IRoutes{
 		"GET":    c.GET,
@@ -37,6 +41,10 @@ func Controller(basePath string, routes ...RouteBase) *gin.Engine {
 			continue
 		}
 		// handlerFunc(route.basePath, append(route.middlewares, route.handler)...)
+
+		logInitController(route.basePath, route.method, strings.Replace(controllerAbsolutePath, "/", "", -1))
+
+		// apply middlewares and interceptor for each controller route
 		handlerFunc(route.basePath, append(route.middlewares, PipeResponse(route.handler))...)
 	}
 
@@ -57,10 +65,10 @@ func PipeResponse(handler func(c *gin.Context) interface{}) gin.HandlerFunc {
 		render, exists := ctx.Get(RENDER)
 		if exists {
 			if IsEnableRender {
-				ctx.HTML(200, render.(string), response)
+				ctx.HTML(http.StatusOK, render.(string), response)
 			} else {
-				ctx.JSON(404, gin.H{
-					"status":  404,
+				ctx.JSON(http.StatusNotFound, gin.H{
+					"status":  http.StatusNotFound,
 					"message": "Cannot find view: " + render.(string),
 				})
 			}
@@ -93,6 +101,17 @@ func PipeResponse(handler func(c *gin.Context) interface{}) gin.HandlerFunc {
 		// response default to JSON
 		ctx.JSON(http.StatusOK, response)
 	}
+}
+
+// logInitController initializes the logging for a controller in the given base path and HTTP method.
+//
+// Parameters:
+// - basePath: the base path for the controller.
+// - method: the HTTP method for the controller.
+// - controllerAbsolutePath: the absolute path of the controller.
+func logInitController(basePath string, method HTTPMethod, controllerAbsolutePath string) {
+	log := logger.Logger("Routix")
+	log.Success(fmt.Sprintf("{%s} Mapped {%s, %s} route", controllerAbsolutePath, basePath, method))
 }
 
 type RouteBase struct {
