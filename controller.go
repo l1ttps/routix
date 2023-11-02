@@ -54,6 +54,21 @@ func PipeResponse(handler func(c *gin.Context) interface{}) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		response := handler(ctx)
 
+		render, exists := ctx.Get(RENDER)
+		if exists {
+			if IsEnableRender {
+				ctx.HTML(200, render.(string), response)
+			} else {
+				ctx.JSON(404, gin.H{
+					"status":  404,
+					"message": "Cannot find view: " + render.(string),
+				})
+			}
+			ctx.Abort()
+			return
+		}
+
+		// Override exception to response with status and message
 		if httpException, ok := response.(exception.HttpExceptionResponse); ok {
 			ctx.JSON(httpException.Status, gin.H{
 				"status":  httpException.Status,
@@ -62,6 +77,7 @@ func PipeResponse(handler func(c *gin.Context) interface{}) gin.HandlerFunc {
 			return
 		}
 
+		// Response status code and message from handler
 		if status, ok := response.(map[string]interface{}); ok {
 			statusCode, exists := status["status"].(int)
 			message, messageExists := status["message"].(string)
@@ -74,6 +90,7 @@ func PipeResponse(handler func(c *gin.Context) interface{}) gin.HandlerFunc {
 			}
 		}
 
+		// response default to JSON
 		ctx.JSON(http.StatusOK, response)
 	}
 }
