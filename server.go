@@ -1,7 +1,14 @@
 package routix
 
 import (
+	"fmt"
+	"path"
+	"reflect"
+	"runtime"
+	"strings"
+
 	"github.com/gin-gonic/gin"
+	"github.com/l1ttps/routix/logger"
 )
 
 type ControllerType func() *gin.Engine
@@ -24,6 +31,7 @@ func CreateServer(config ServerConfig) *gin.Engine {
 	if !config.DebugLogger {
 		gin.SetMode(gin.ReleaseMode)
 	}
+
 	// Create a new Gin server with default middleware
 	Driver = gin.Default()
 
@@ -50,12 +58,17 @@ func CreateServer(config ServerConfig) *gin.Engine {
 // applyMiddlewares applies a list of middlewares to a gin.Engine.
 //
 // Parameters:
-//   - r: a pointer to a gin.Engine object.
-//   - middlewares: a slice of gin.HandlerFunc objects.
+// - r: a pointer to a gin.Engine to which the middlewares will be applied.
+// - middlewares: a slice of gin.HandlerFunc representing the middlewares to be applied.
 //
-// Return type: None.
+// Returns: nothing.
 func applyMiddlewares(r *gin.Engine, middlewares []gin.HandlerFunc) {
+	log := logger.Logger("Routix")
+
 	for _, middleware := range middlewares {
+		funcName := getFunctionName(middleware)
+		parts := strings.Split(funcName, ".")
+		log.Success(fmt.Sprintf("{%s} Applied middleware: {%s()}", parts[0], parts[1]))
 		r.Use(middleware)
 	}
 	return
@@ -86,4 +99,15 @@ func useBaseViewDir(customBaseViewDir string) {
 		IsEnableRender = true
 	}
 	return
+}
+
+func getFunctionName(fcn interface{}) string {
+	pc := reflect.ValueOf(fcn).Pointer()
+	funcInfo := runtime.FuncForPC(pc)
+	if funcInfo == nil {
+		return ""
+	}
+
+	funcName := path.Base(funcInfo.Name())
+	return funcName
 }
