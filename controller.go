@@ -18,7 +18,7 @@ type Engine *gin.Engine
 // RouteBase structs representing the routes to be added to the engine.
 //
 // The function returns a *gin.Engine instance that has been configured with the specified routes.
-func Controller(basePath string, routes ...RouteBase) *gin.Engine {
+func Controller(basePath string, routes ...RouteBase) {
 
 	var drive = Driver
 
@@ -48,7 +48,6 @@ func Controller(basePath string, routes ...RouteBase) *gin.Engine {
 		handlerFunc(route.basePath, append(route.middlewares, PipeResponse(route.handler))...)
 	}
 
-	return drive
 }
 
 // PipeResponse is a function that takes a handler function as input and returns a gin.HandlerFunc.

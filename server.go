@@ -11,9 +11,6 @@ import (
 	"github.com/l1ttps/routix/logger"
 )
 
-type ControllerType func() *gin.Engine
-type MiddlewareType gin.HandlerFunc
-
 type ServerConfig struct {
 	Controllers []ControllerType
 	Middlewares []gin.HandlerFunc

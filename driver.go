@@ -13,3 +13,7 @@ var BaseViewDir string = "views/*"
 
 // IsEnableRender determines whether rendering is enabled or not
 var IsEnableRender bool = false
+
+type ControllerType func()
+
+type MiddlewareType gin.HandlerFunc
