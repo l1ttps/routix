@@ -2,6 +2,7 @@ package routix
 
 import (
 	"fmt"
+	"net/http"
 	"path"
 	"reflect"
 	"runtime"
@@ -47,6 +48,9 @@ func CreateServer(config ServerConfig) *gin.Engine {
 
 	// Mapping views folder
 	useBaseViewDir(config.BaseViewDir)
+
+	// Fallback
+	fallback()
 
 	// Return the created Gin server
 	return Driver
@@ -107,4 +111,22 @@ func getFunctionName(fcn interface{}) string {
 
 	funcName := path.Base(funcInfo.Name())
 	return funcName
+}
+
+func fallback() {
+	// Fallback method not allowed
+	Driver.NoMethod(func(c *gin.Context) {
+		c.JSON(http.StatusMethodNotAllowed, gin.H{
+			"status":  http.StatusMethodNotAllowed,
+			"message": http.StatusText(http.StatusMethodNotAllowed),
+		})
+	})
+
+	// Fallback router not found
+	Driver.NoRoute(func(c *gin.Context) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  http.StatusNotFound,
+			"message": http.StatusText(http.StatusNotFound),
+		})
+	})
 }
